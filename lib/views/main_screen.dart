@@ -69,6 +69,34 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Основной экран')),
+      drawer: Drawer(
+        child: ListView(
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(color: Colors.blue),
+              child: Text('Menu'),
+            ),
+            ListTile(
+              title: const Text('Валюты'),
+              onTap: () {
+                Navigator.pushNamed(context, '/currencies');
+              },
+            ),
+            ListTile(
+              title: const Text('Пользователи'),
+              onTap: () {
+                Navigator.pushNamed(context, '/users');
+              },
+            ),
+            ListTile(
+              title: const Text('Касса'),
+              onTap: () {
+                Navigator.pushNamed(context, '/cash');
+              },
+            ),
+          ],
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

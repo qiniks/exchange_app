@@ -6,6 +6,30 @@ class ApiService {
   final Dio _dio =
       Dio(BaseOptions(baseUrl: 'https://qiniks.pythonanywhere.com/api/'));
 
+  Future<bool> logIn(String username, String password) async {
+    try {
+      final response = await _dio.post(
+        'authenticate/',
+        data: {
+          "username": username,
+          "password": password,
+        },
+      );
+
+      // Проверка успешного ответа
+      if (response.statusCode == 200) {
+        return true; // Пользователь успешно прошел проверку
+      } else if (response.statusCode == 401) {
+        print("Неверный пароль или username");
+      }
+      return false;
+    } catch (e) {
+      // Логирование ошибки для диагностики
+      // print('Ошибка при аутентификации: $e');
+      rethrow; // Пробрасываем ошибку дальше для обработки
+    }
+  }
+
   Future<List<Currency>> fetchCurrencies() async {
     try {
       final response = await _dio.get('currencies/');
@@ -83,6 +107,50 @@ class ApiService {
       );
     } catch (e) {
       throw Exception('Ошибка при обновлении транзакции: $e');
+    }
+  }
+
+  Future<void> addCurrency(String currencyCode) async {
+    try {
+      await _dio.post('currencies/', data: {
+        'code': currencyCode,
+      });
+    } catch (e) {
+      throw Exception('Ошибка при добавлении валюты: $e');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchUsers() async {
+    try {
+      final response = await _dio.get('users/');
+      // Ответ уже является списком объектов, а не объектом с ключом 'data'
+      return List<Map<String, dynamic>>.from(response.data);
+    } catch (e) {
+      throw Exception('Ошибка при загрузке пользователей: $e');
+    }
+  }
+
+  Future<void> addUser(String username, String password) async {
+    try {
+      await _dio.post('register/', data: {
+        'username': username,
+        'password': password,
+      });
+    } catch (e) {
+      throw Exception('Ошибка при добавлении пользователя: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchCashDeskData() async {
+    try {
+      final response = await _dio.get('/cash-register');
+      if (response.statusCode == 200) {
+        return response.data;
+      } else {
+        throw Exception('Ошибка загрузки данных: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Ошибка: $e');
     }
   }
 }
