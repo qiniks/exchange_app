@@ -3,6 +3,8 @@ import '../models/currency.dart';
 import '../models/transaction.dart';
 
 class ApiService {
+  static int? currentUserId;
+
   final Dio _dio =
       Dio(BaseOptions(baseUrl: 'https://qiniks.pythonanywhere.com/api/'));
 
@@ -18,13 +20,14 @@ class ApiService {
 
       // Проверка успешного ответа
       if (response.statusCode == 200) {
+        print(response);
+        currentUserId = response.data['user_id'];
         return true; // Пользователь успешно прошел проверку
       } else if (response.statusCode == 401) {
         print("Неверный пароль или username");
       }
       return false;
     } catch (e) {
-      // Логирование ошибки для диагностики
       // print('Ошибка при аутентификации: $e');
       rethrow; // Пробрасываем ошибку дальше для обработки
     }
@@ -49,7 +52,7 @@ class ApiService {
   }) async {
     try {
       await _dio.post('transactions/', data: {
-        "user": 1,
+        "user": currentUserId,
         "currency": currency_code,
         "operation_type": type,
         "amount": amount,

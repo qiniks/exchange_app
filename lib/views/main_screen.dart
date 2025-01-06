@@ -163,13 +163,13 @@ class _MainScreenState extends State<MainScreen> {
                   Navigator.of(context).push(createRoute(const CashScreen()));
                 },
               ),
-              ListTile(
-                leading: const Icon(Icons.newspaper),
-                title: const Text('Report'),
-                onTap: () {
-                  Navigator.of(context).push(createRoute(const ReportScreen()));
-                },
-              ),
+              // ListTile(
+              //   leading: const Icon(Icons.newspaper),
+              //   title: const Text('Report'),
+              //   onTap: () {
+              //     Navigator.of(context).push(createRoute(const ReportScreen()));
+              //   },
+              // ),
               ListTile(
                 leading: const Icon(Icons.restore_from_trash),
                 title: const Text('Clear'),
@@ -263,14 +263,16 @@ class _MainScreenState extends State<MainScreen> {
             const SizedBox(height: 16),
             Text(
               'Total: $_total',
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity, // Максимальная ширина
               child: OutlinedButton(
                 onPressed: _addTransaction,
-                child: const Text('Add'),
+                child: const Text('Add',
+                    style: TextStyle(fontWeight: FontWeight.bold,
+                    fontSize: 18)),
               ),
             ),
             SizedBox(
@@ -280,7 +282,8 @@ class _MainScreenState extends State<MainScreen> {
                   // Открыть экран событий
                   Navigator.pushNamed(context, '/events');
                 },
-                child: const Text('Events'),
+                child: const Text('Events',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),),
               ),
             ),
           ],

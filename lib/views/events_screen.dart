@@ -172,28 +172,32 @@ class _EventsScreenState extends State<EventsScreen> {
                               label: Text('Дата',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold))),
+                          // DataColumn(
+                          //     label: Text('User',
+                          //         style:
+                          //             TextStyle(fontWeight: FontWeight.bold))),
                           DataColumn(
-                              label: Text('Валюта',
+                              label: Text('Currency',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold))),
                           DataColumn(
-                              label: Text('Тип',
+                              label: Text('Type',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold))),
                           DataColumn(
-                              label: Text('Кол-во',
+                              label: Text('Amount',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold))),
                           DataColumn(
-                              label: Text('Курс',
+                              label: Text('Rate',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold))),
                           DataColumn(
-                              label: Text('Итог',
+                              label: Text('Total',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold))),
                           DataColumn(
-                              label: Text('Действия',
+                              label: Text('Actions',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold))),
                         ],
@@ -209,6 +213,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                 (states) => rowColor),
                             cells: [
                               DataCell(Text(transaction.date)),
+                              // DataCell(Text(transaction.user.toString())),
                               DataCell(Text(transaction.currency)),
                               DataCell(Text(transaction.operationType)),
                               DataCell(Text(transaction.amount.toString())),

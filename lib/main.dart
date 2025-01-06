@@ -17,6 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Currency Exchange',
       theme: ThemeData(
         useMaterial3: true,
@@ -46,14 +47,6 @@ class MyApp extends StatelessWidget {
             borderSide: const BorderSide(color: Colors.blue, width: 2.0), // Граница в активном состоянии
             borderRadius: BorderRadius.circular(10.0), // Закругленные края
           ),
-          errorBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.red), // Граница при ошибке
-            borderRadius: BorderRadius.circular(10.0), // Закругленные края
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.red, width: 2.0), // Граница при активной ошибке
-            borderRadius: BorderRadius.circular(10.0), // Закругленные края
-          ),
         ),
       ),
       initialRoute: '/login',
@@ -69,3 +62,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
