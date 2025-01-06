@@ -31,7 +31,8 @@ class _CurrenciesScreenState extends State<CurrenciesScreen> {
   }
 
   void _deleteCurrency(int currencyId) async {
-    final confirmed = await _showConfirmationDialog('Вы уверены, что хотите удалить валюту?');
+    final confirmed =
+        await _showConfirmationDialog('Вы уверены, что хотите удалить валюту?');
     if (confirmed) {
       try {
         await _apiService.deleteCurrency(currencyId);
@@ -51,7 +52,7 @@ class _CurrenciesScreenState extends State<CurrenciesScreen> {
 
   void _showAddCurrencyDialog() {
     final TextEditingController _currencyCodeController =
-    TextEditingController();
+        TextEditingController();
 
     showDialog(
       context: context,
@@ -101,22 +102,22 @@ class _CurrenciesScreenState extends State<CurrenciesScreen> {
 
   Future<bool> _showConfirmationDialog(String message) async {
     return (await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Подтверждение'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Нет'),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Подтверждение'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Нет'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Да'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Да'),
-          ),
-        ],
-      ),
-    )) ??
+        )) ??
         false;
   }
 
@@ -124,15 +125,35 @@ class _CurrenciesScreenState extends State<CurrenciesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Валюты')),
-      body: ListView.builder(
+      body: ListView.separated(
         itemCount: _currencies.length,
+        separatorBuilder: (context, index) => const Divider(
+          thickness: 1,
+          height: 1,
+          color: Colors.white,
+        ),
         itemBuilder: (context, index) {
           final currency = _currencies[index];
-          return ListTile(
-            title: Text(currency.code),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () => _deleteCurrency(currency.id),
+          return Card(
+            elevation: 2,
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ListTile(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              title: Text(
+                currency.code,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              trailing: IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () => _deleteCurrency(currency.id),
+              ),
             ),
           );
         },

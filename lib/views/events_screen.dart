@@ -84,7 +84,7 @@ class _EventsScreenState extends State<EventsScreen> {
               future: currencies,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
+                  return const LinearProgressIndicator();
                 } else if (snapshot.hasError) {
                   return Text('Ошибка загрузки валют: ${snapshot.error}');
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

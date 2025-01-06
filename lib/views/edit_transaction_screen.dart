@@ -18,8 +18,10 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
   @override
   void initState() {
     super.initState();
-    amountController = TextEditingController(text: widget.transaction.amount.toString());
-    rateController = TextEditingController(text: widget.transaction.rate.toString());
+    amountController =
+        TextEditingController(text: widget.transaction.amount.toString());
+    rateController =
+        TextEditingController(text: widget.transaction.rate.toString());
   }
 
   @override
@@ -35,6 +37,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
               decoration: const InputDecoration(labelText: 'Количество'),
               keyboardType: TextInputType.number,
             ),
+            const SizedBox(height: 16),
             TextFormField(
               controller: rateController,
               decoration: const InputDecoration(labelText: 'Курс'),
@@ -50,7 +53,8 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                   operationType: widget.transaction.operationType,
                   amount: double.parse(amountController.text),
                   rate: double.parse(rateController.text),
-                  total: double.parse(amountController.text) * double.parse(rateController.text),
+                  total: double.parse(amountController.text) *
+                      double.parse(rateController.text),
                   date: widget.transaction.date,
                 );
 

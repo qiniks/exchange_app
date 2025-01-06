@@ -43,7 +43,8 @@ class _UsersScreenState extends State<UsersScreen> {
             children: [
               TextField(
                 controller: _usernameController,
-                decoration: const InputDecoration(labelText: 'Имя пользователя'),
+                decoration:
+                    const InputDecoration(labelText: 'Имя пользователя'),
               ),
               const SizedBox(height: 8),
               TextField(
@@ -93,9 +94,9 @@ class _UsersScreenState extends State<UsersScreen> {
     }
   }
 
-
   void _deleteUser(int userId) async {
-    final confirmed = await _showConfirmationDialog('Вы уверены, что хотите удалить пользователя?');
+    final confirmed = await _showConfirmationDialog(
+        'Вы уверены, что хотите удалить пользователя?');
     if (confirmed) {
       try {
         await _apiService.deleteUser(userId);
@@ -115,22 +116,22 @@ class _UsersScreenState extends State<UsersScreen> {
 
   Future<bool> _showConfirmationDialog(String message) async {
     return (await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Подтверждение'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Нет'),
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Подтверждение'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Нет'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Да'),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Да'),
-          ),
-        ],
-      ),
-    )) ??
+        )) ??
         false;
   }
 
@@ -138,15 +139,36 @@ class _UsersScreenState extends State<UsersScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Пользователи')),
-      body: ListView.builder(
+      body: ListView.separated(
         itemCount: _users.length,
+        separatorBuilder: (context, index) => const Divider(
+          thickness: 1,
+          height: 1,
+          color: Colors.white,
+        ),
         itemBuilder: (context, index) {
           final user = _users[index];
-          return ListTile(
-            title: Text(user['username'] ?? 'Неизвестно'),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () => _deleteUser(user['id']),
+          return Card(
+            elevation: 2,
+            margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: ListTile(
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              leading: const Icon(Icons.account_circle_outlined),
+              title: Text(
+                user['username'] ?? 'Неизвестно',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              trailing: IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                onPressed: () => _deleteUser(user['id']),
+              ),
             ),
           );
         },

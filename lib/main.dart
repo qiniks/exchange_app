@@ -4,6 +4,7 @@ import 'views/currencies_screen.dart';
 import 'views/events_screen.dart';
 import 'views/login_screen.dart';
 import 'views/main_screen.dart';
+import 'views/report_screen.dart';
 import 'views/users_screen.dart';
 
 void main() {
@@ -63,6 +64,7 @@ class MyApp extends StatelessWidget {
         '/currencies': (context) => const CurrenciesScreen(),
         '/users': (context) => const UsersScreen(),
         '/cash': (context) => const CashScreen(),
+        '/report': (context) => const ReportScreen(),
       },
     );
   }

@@ -1,6 +1,10 @@
+import 'package:exhange_app/views/report_screen.dart';
+import 'package:exhange_app/views/users_screen.dart';
 import 'package:flutter/material.dart';
 import '../models/currency.dart';
 import '../services/api_service.dart';
+import 'cash_screen.dart';
+import 'currencies_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -105,10 +109,30 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  Route createRoute(Widget page) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = Offset(1.0, 0.0); // Анимация начинается справа
+        const end = Offset.zero; // Конечная позиция
+        const curve = Curves.easeInOut;
+
+        var tween =
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        var offsetAnimation = animation.drive(tween);
+
+        return SlideTransition(
+          position: offsetAnimation,
+          child: child,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Основной экран')),
+      appBar: AppBar(title: const Text('Main screen')),
       drawer: Drawer(
         width: 250,
         child: SafeArea(
@@ -116,30 +140,39 @@ class _MainScreenState extends State<MainScreen> {
             children: <Widget>[
               ListTile(
                 leading: const Icon(Icons.currency_exchange),
-                title: const Text('Валюты'),
+                title: const Text('Currencies'),
                 onTap: () {
-                  Navigator.pushNamed(context, '/currencies').then((_) {
+                  Navigator.of(context)
+                      .push(createRoute(const CurrenciesScreen()))
+                      .then((_) {
                     _loadCurrencies(); // Обновляем данные после возврата с экрана
                   });
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.people),
-                title: const Text('Пользователи'),
+                title: const Text('Users'),
                 onTap: () {
-                  Navigator.pushNamed(context, '/users');
+                  Navigator.of(context).push(createRoute(const UsersScreen()));
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.account_balance),
-                title: const Text('Касса'),
+                leading: const Icon(Icons.wallet_outlined),
+                title: const Text('Cash'),
                 onTap: () {
-                  Navigator.pushNamed(context, '/cash');
+                  Navigator.of(context).push(createRoute(const CashScreen()));
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.newspaper),
+                title: const Text('Report'),
+                onTap: () {
+                  Navigator.of(context).push(createRoute(const ReportScreen()));
                 },
               ),
               ListTile(
                 leading: const Icon(Icons.restore_from_trash),
-                title: const Text('Очистить'),
+                title: const Text('Clear'),
                 onTap: () {
                   _showClearDatabaseDialog(context);
                 },
@@ -159,11 +192,16 @@ class _MainScreenState extends State<MainScreen> {
                     onPressed: () {
                       setState(() => _isBuying = true);
                     },
-                    icon: const Icon(Icons.arrow_downward, color: Colors.white,),
+                    icon: const Icon(
+                      Icons.arrow_downward,
+                      color: Colors.white,
+                    ),
                     label: const Text('Buy'),
                     style: ElevatedButton.styleFrom(
-                      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      foregroundColor: _isBuying ? Colors.white : Colors.white, // Цвет текста
+                      textStyle: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
+                      foregroundColor: _isBuying ? Colors.white : Colors.white,
+                      // Цвет текста
                       backgroundColor: _isBuying ? Colors.green : Colors.grey,
                     ),
                   ),
@@ -174,11 +212,16 @@ class _MainScreenState extends State<MainScreen> {
                     onPressed: () {
                       setState(() => _isBuying = false);
                     },
-                    icon: const Icon(Icons.arrow_upward, color: Colors.white,),
+                    icon: const Icon(
+                      Icons.arrow_upward,
+                      color: Colors.white,
+                    ),
                     label: const Text('Sell'),
                     style: ElevatedButton.styleFrom(
-                      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      foregroundColor: _isBuying ? Colors.white : Colors.white, // Цвет текста
+                      textStyle: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
+                      foregroundColor: _isBuying ? Colors.white : Colors.white,
+                      // Цвет текста
                       backgroundColor: !_isBuying ? Colors.red : Colors.grey,
                     ),
                   ),
@@ -197,11 +240,11 @@ class _MainScreenState extends State<MainScreen> {
               onChanged: (value) {
                 setState(() => _selectedCurrency = value);
               },
-              decoration: const InputDecoration(labelText: 'Выберите валюту'),
+              decoration: const InputDecoration(labelText: 'Select currency'),
             ),
             const SizedBox(height: 16),
             TextField(
-              decoration: const InputDecoration(labelText: 'Количество'),
+              decoration: const InputDecoration(labelText: 'Amount'),
               keyboardType: TextInputType.number,
               onChanged: (value) {
                 _amount = double.tryParse(value) ?? 0.0;
@@ -210,7 +253,7 @@ class _MainScreenState extends State<MainScreen> {
             ),
             const SizedBox(height: 16),
             TextField(
-              decoration: const InputDecoration(labelText: 'Курс'),
+              decoration: const InputDecoration(labelText: 'Change rate'),
               keyboardType: TextInputType.number,
               onChanged: (value) {
                 _rate = double.tryParse(value) ?? 0.0;
@@ -218,19 +261,27 @@ class _MainScreenState extends State<MainScreen> {
               },
             ),
             const SizedBox(height: 16),
-            Text('Итог: $_total'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _addTransaction,
-              child: const Text('Add'),
+            Text(
+              'Total: $_total',
+              style: TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                // Открыть экран событий
-                Navigator.pushNamed(context, '/events');
-              },
-              child: const Text('События'),
+            SizedBox(
+              width: double.infinity, // Максимальная ширина
+              child: OutlinedButton(
+                onPressed: _addTransaction,
+                child: const Text('Add'),
+              ),
+            ),
+            SizedBox(
+              width: double.infinity, // Максимальная ширина
+              child: OutlinedButton(
+                onPressed: () {
+                  // Открыть экран событий
+                  Navigator.pushNamed(context, '/events');
+                },
+                child: const Text('Events'),
+              ),
             ),
           ],
         ),

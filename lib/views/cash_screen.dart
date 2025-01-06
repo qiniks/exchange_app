@@ -46,7 +46,7 @@ class _CashScreenState extends State<CashScreen> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -54,35 +54,97 @@ class _CashScreenState extends State<CashScreen> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
+                  headingRowColor: MaterialStateProperty.resolveWith(
+                        (states) => Colors.grey[200],
+                  ),
+                  dataRowColor: MaterialStateProperty.resolveWith(
+                        (states) => states.contains(MaterialState.selected)
+                        ? Colors.blue.withOpacity(0.1)
+                        : Colors.grey.withOpacity(0.05),
+                  ),
                   columnSpacing: 24.0,
                   columns: const [
-                    DataColumn(label: Text('Currency')),
-                    DataColumn(label: Text('Total bought')),
-                    DataColumn(label: Text('Avg bought')),
-                    DataColumn(label: Text('Total sold')),
-                    DataColumn(label: Text('Avg sold')),
-                    DataColumn(label: Text('Profit')),
+                    DataColumn(
+                      label: Text(
+                        'Currency',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Total bought',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Avg bought',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Total sold',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Avg sold',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    DataColumn(
+                      label: Text(
+                        'Profit',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                   ],
                   rows: currencyData.map((currency) {
-                    return DataRow(cells: [
-                      DataCell(Text(currency['currency'])),
-                      DataCell(Text(currency['total_bought']
-                          .toStringAsFixed(2))),
-                      DataCell(Text(currency['avg_rate_bought']
-                          .toStringAsFixed(2))),
-                      DataCell(Text(currency['total_sold']
-                          .toStringAsFixed(2))),
-                      DataCell(Text(currency['avg_rate_sold']
-                          .toStringAsFixed(2))),
-                      DataCell(Text(currency['profit'].abs().toStringAsFixed(2))),
-                    ]);
+                    return DataRow(
+                      cells: [
+                        DataCell(Text(currency['currency'])),
+                        DataCell(Text(
+                            currency['total_bought'].toStringAsFixed(2))),
+                        DataCell(Text(currency['avg_rate_bought']
+                            .toStringAsFixed(2))),
+                        DataCell(Text(
+                            currency['total_sold'].toStringAsFixed(2))),
+                        DataCell(Text(currency['avg_rate_sold']
+                            .toStringAsFixed(2))),
+                        DataCell(Text(
+                          currency['profit']
+                              .abs()
+                              .toStringAsFixed(2),
+                          style: TextStyle(
+                            color: currency['profit'] >= 0
+                                ? Colors.green
+                                : Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )),
+                      ],
+                    );
                   }).toList(),
                 ),
               ),
             ),
             const SizedBox(height: 16),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'Сом: ${totalCash.toStringAsFixed(2)}',
@@ -91,6 +153,7 @@ class _CashScreenState extends State<CashScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                const SizedBox(width: 36),
                 Text(
                   'Profit: ${totalProfit.toStringAsFixed(2)}',
                   style: const TextStyle(
