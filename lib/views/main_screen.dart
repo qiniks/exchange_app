@@ -31,7 +31,7 @@ class _MainScreenState extends State<MainScreen> {
       setState(() {
         _currencies = currencies;
         if (_currencies.isNotEmpty) {
-          _selectedCurrency = _currencies.first;
+          _selectedCurrency = null;
         }
       });
     } catch (e) {
@@ -65,36 +65,87 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  void _showClearDatabaseDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Подтвердите действие'),
+          content: const Text('Вы уверены, что хотите очистить базу данных?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Закрыть диалог
+              },
+              child: const Text('Нет'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Закрыть диалог
+                _clearDatabase(); // Очистка базы данных
+              },
+              child: const Text('Да'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _clearDatabase() async {
+    try {
+      await _apiService.clearDatabase();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('База данных успешно очищена')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка при очистке базы данных: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Основной экран')),
       drawer: Drawer(
-        child: ListView(
-          children: <Widget>[
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue),
-              child: Text('Menu'),
-            ),
-            ListTile(
-              title: const Text('Валюты'),
-              onTap: () {
-                Navigator.pushNamed(context, '/currencies');
-              },
-            ),
-            ListTile(
-              title: const Text('Пользователи'),
-              onTap: () {
-                Navigator.pushNamed(context, '/users');
-              },
-            ),
-            ListTile(
-              title: const Text('Касса'),
-              onTap: () {
-                Navigator.pushNamed(context, '/cash');
-              },
-            ),
-          ],
+        width: 250,
+        child: SafeArea(
+          child: ListView(
+            children: <Widget>[
+              ListTile(
+                leading: const Icon(Icons.currency_exchange),
+                title: const Text('Валюты'),
+                onTap: () {
+                  Navigator.pushNamed(context, '/currencies').then((_) {
+                    _loadCurrencies(); // Обновляем данные после возврата с экрана
+                  });
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.people),
+                title: const Text('Пользователи'),
+                onTap: () {
+                  Navigator.pushNamed(context, '/users');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.account_balance),
+                title: const Text('Касса'),
+                onTap: () {
+                  Navigator.pushNamed(context, '/cash');
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.restore_from_trash),
+                title: const Text('Очистить'),
+                onTap: () {
+                  _showClearDatabaseDialog(context);
+                },
+              ),
+            ],
+          ),
         ),
       ),
       body: Padding(
@@ -108,9 +159,11 @@ class _MainScreenState extends State<MainScreen> {
                     onPressed: () {
                       setState(() => _isBuying = true);
                     },
-                    icon: const Icon(Icons.arrow_downward),
+                    icon: const Icon(Icons.arrow_downward, color: Colors.white,),
                     label: const Text('Buy'),
                     style: ElevatedButton.styleFrom(
+                      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      foregroundColor: _isBuying ? Colors.white : Colors.white, // Цвет текста
                       backgroundColor: _isBuying ? Colors.green : Colors.grey,
                     ),
                   ),
@@ -121,9 +174,11 @@ class _MainScreenState extends State<MainScreen> {
                     onPressed: () {
                       setState(() => _isBuying = false);
                     },
-                    icon: const Icon(Icons.arrow_upward),
+                    icon: const Icon(Icons.arrow_upward, color: Colors.white,),
                     label: const Text('Sell'),
                     style: ElevatedButton.styleFrom(
+                      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      foregroundColor: _isBuying ? Colors.white : Colors.white, // Цвет текста
                       backgroundColor: !_isBuying ? Colors.red : Colors.grey,
                     ),
                   ),
@@ -135,9 +190,9 @@ class _MainScreenState extends State<MainScreen> {
               value: _selectedCurrency,
               items: _currencies
                   .map((currency) => DropdownMenuItem(
-                value: currency,
-                child: Text(currency.code),
-              ))
+                        value: currency,
+                        child: Text(currency.code),
+                      ))
                   .toList(),
               onChanged: (value) {
                 setState(() => _selectedCurrency = value);

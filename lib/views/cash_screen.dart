@@ -54,14 +54,14 @@ class _CashScreenState extends State<CashScreen> {
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: DataTable(
-                  columnSpacing: 16.0,
+                  columnSpacing: 24.0,
                   columns: const [
-                    DataColumn(label: Text('Валюта')),
-                    DataColumn(label: Text('Куплено')),
-                    DataColumn(label: Text('Сред. курс покупки')),
-                    DataColumn(label: Text('Продано')),
-                    DataColumn(label: Text('Сред. курс продажи')),
-                    DataColumn(label: Text('Профит')),
+                    DataColumn(label: Text('Currency')),
+                    DataColumn(label: Text('Total bought')),
+                    DataColumn(label: Text('Avg bought')),
+                    DataColumn(label: Text('Total sold')),
+                    DataColumn(label: Text('Avg sold')),
+                    DataColumn(label: Text('Profit')),
                   ],
                   rows: currencyData.map((currency) {
                     return DataRow(cells: [
@@ -74,7 +74,7 @@ class _CashScreenState extends State<CashScreen> {
                           .toStringAsFixed(2))),
                       DataCell(Text(currency['avg_rate_sold']
                           .toStringAsFixed(2))),
-                      DataCell(Text(currency['profit'].toStringAsFixed(2))),
+                      DataCell(Text(currency['profit'].abs().toStringAsFixed(2))),
                     ]);
                   }).toList(),
                 ),

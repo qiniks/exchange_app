@@ -11,8 +11,6 @@ class UsersScreen extends StatefulWidget {
 class _UsersScreenState extends State<UsersScreen> {
   final ApiService _apiService = ApiService();
   List<Map<String, dynamic>> _users = [];
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -20,88 +18,142 @@ class _UsersScreenState extends State<UsersScreen> {
     _loadUsers();
   }
 
-  Future<void> _loadUsers() async {
+  void _loadUsers() async {
     try {
       final users = await _apiService.fetchUsers();
       setState(() {
-        _users = users;
+        _users = List<Map<String, dynamic>>.from(users);
       });
     } catch (e) {
+      print('Ошибка при загрузке пользователей: $e');
+    }
+  }
+
+  void _showAddUserDialog() {
+    final TextEditingController _usernameController = TextEditingController();
+    final TextEditingController _passwordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Добавить нового пользователя'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _usernameController,
+                decoration: const InputDecoration(labelText: 'Имя пользователя'),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _passwordController,
+                decoration: const InputDecoration(labelText: 'Пароль'),
+                obscureText: true,
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Закрыть диалог
+              },
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () {
+                _addUser(
+                  _usernameController.text.trim(),
+                  _passwordController.text.trim(),
+                );
+                Navigator.of(context).pop(); // Закрыть диалог
+              },
+              child: const Text('Добавить'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Добавление нового пользователя через API
+  void _addUser(String username, String password) async {
+    if (username.isEmpty || password.isEmpty) return;
+
+    try {
+      await _apiService.addUser(username, password);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка при загрузке пользователей: $e')),
+        const SnackBar(content: Text('Пользователь добавлен')),
+      );
+      _loadUsers(); // Обновить список пользователей
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка: $e')),
       );
     }
   }
 
-  Future<void> _addUser() async {
-    final username = _usernameController.text.trim();
-    final password = _passwordController.text.trim();
 
-    if (username.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Введите имя пользователя и пароль')),
-      );
-      return;
+  void _deleteUser(int userId) async {
+    final confirmed = await _showConfirmationDialog('Вы уверены, что хотите удалить пользователя?');
+    if (confirmed) {
+      try {
+        await _apiService.deleteUser(userId);
+        setState(() {
+          _users.removeWhere((user) => user['id'] == userId);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Пользователь успешно удален')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка: $e')),
+        );
+      }
     }
+  }
 
-    try {
-      await _apiService.addUser(username, password);
-      _usernameController.clear();
-      _passwordController.clear();
-      await _loadUsers(); // Обновить список
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Пользователь добавлен')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка при добавлении пользователя: $e')),
-      );
-    }
+  Future<bool> _showConfirmationDialog(String message) async {
+    return (await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Подтверждение'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Нет'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Да'),
+          ),
+        ],
+      ),
+    )) ??
+        false;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Пользователи')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                itemCount: _users.length,
-                itemBuilder: (context, index) {
-                  final user = _users[index];
-                  return ListTile(
-                    title: Text(user['username']),
-                  );
-                },
-              ),
+      body: ListView.builder(
+        itemCount: _users.length,
+        itemBuilder: (context, index) {
+          final user = _users[index];
+          return ListTile(
+            title: Text(user['username'] ?? 'Неизвестно'),
+            trailing: IconButton(
+              icon: const Icon(Icons.delete, color: Colors.red),
+              onPressed: () => _deleteUser(user['id']),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _usernameController,
-              decoration: const InputDecoration(
-                labelText: 'Имя пользователя',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _passwordController,
-              decoration: const InputDecoration(
-                labelText: 'Пароль',
-                border: OutlineInputBorder(),
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _addUser,
-              child: const Text('Добавить пользователя'),
-            ),
-          ],
-        ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddUserDialog,
+        child: const Icon(Icons.add),
       ),
     );
   }

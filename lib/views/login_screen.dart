@@ -34,7 +34,6 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
       } catch (e) {
-        print("хуесос выдал ошиьку");
         ScaffoldMessenger.of(context).showSnackBar(
           //debug
           SnackBar(content: Text('Неверное имя пользователя или пароль')),

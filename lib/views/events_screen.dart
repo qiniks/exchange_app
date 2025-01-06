@@ -63,192 +63,182 @@ class _EventsScreenState extends State<EventsScreen> {
 
   List<Transaction> _filterTransactions(List<Transaction> transactions) {
     return transactions.where((transaction) {
-      final matchesCurrency = selectedCurrency == 'All' || transaction.currency == selectedCurrency;
-      final matchesOperationType = selectedOperationType == 'All' || transaction.operationType == selectedOperationType;
+      final matchesCurrency =
+          selectedCurrency == 'All' || transaction.currency == selectedCurrency;
+      final matchesOperationType = selectedOperationType == 'All' ||
+          transaction.operationType == selectedOperationType;
       return matchesCurrency && matchesOperationType;
     }).toList();
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('События')),
-      body: Column(
-        children: [
-          FutureBuilder<List<Currency>>(
-            future: currencies,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const CircularProgressIndicator();
-              } else if (snapshot.hasError) {
-                return Text('Ошибка загрузки валют: ${snapshot.error}');
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Text('Нет доступных валют');
-              } else {
-                final allCurrencies = ['All', ...snapshot.data!.map((currency) => currency.code)];
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 200,  // Фиксированная ширина для Dropdown
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.blueAccent, Colors.cyan],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(12.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 6.0,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: DropdownButton<String>(
-                        hint: const Text(
-                          'Выберите валюту',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        value: selectedCurrency,
-                        underline: const SizedBox(),
-                        dropdownColor: Colors.blueAccent.withOpacity(0.9), // Цвет фона выпадающего списка
-                        isExpanded: true,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedCurrency = value;
-                          });
-                        },
-                        iconEnabledColor: Colors.white, // Цвет иконки
-                        items: allCurrencies
-                            .map((currency) => DropdownMenuItem(
-                          value: currency,
-                          child: Text(
-                            currency,
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ))
-                            .toList(),
-                      ),
-                    ),
-                    const SizedBox(width: 20),
-                    Container(
-                      width: 200,  // Фиксированная ширина для Dropdown
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Colors.purpleAccent, Colors.pink],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(12.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 6.0,
-                            offset: Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: DropdownButton<String>(
-                        hint: const Text(
-                          'Выберите тип операции',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        value: selectedOperationType,
-                        underline: const SizedBox(),
-                        dropdownColor: Colors.purpleAccent.withOpacity(0.9), // Цвет фона выпадающего списка
-                        isExpanded: true,
-                        onChanged: (value) {
-                          setState(() {
-                            selectedOperationType = value;
-                          });
-                        },
-                        iconEnabledColor: Colors.white, // Цвет иконки
-                        items: ['All', 'buy', 'sell']
-                            .map((type) => DropdownMenuItem(
-                          value: type,
-                          child: Text(
-                            type,
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ))
-                            .toList(),
-                      ),
-                    ),
-                  ],
-                );
-
-              }
-            },
-          ),
-          Expanded(
-            child: FutureBuilder<List<Transaction>>(
-              future: transactions,
+      body: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16.0),
+        // Добавляем отступы для всего экрана
+        child: Column(
+          children: [
+            FutureBuilder<List<Currency>>(
+              future: currencies,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const CircularProgressIndicator();
                 } else if (snapshot.hasError) {
-                  return Center(child: Text('Ошибка: ${snapshot.error}'));
+                  return Text('Ошибка загрузки валют: ${snapshot.error}');
                 } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text('Нет данных'));
+                  return const Text('Нет доступных валют');
                 } else {
-                  final filteredTransactions = _filterTransactions(snapshot.data!);
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      headingRowColor: MaterialStateProperty.resolveWith((states) => Colors.grey[200]),
-                      columnSpacing: 20.0,
-                      columns: const [
-                        DataColumn(label: Text('Дата', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Валюта', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Тип', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Кол-во', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Курс', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Итог', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Действия', style: TextStyle(fontWeight: FontWeight.bold))),
-                      ],
-                      rows: filteredTransactions.map((transaction) {
-                        final rowColor = transaction.operationType == 'buy'
-                            ? Colors.red[100]
-                            : transaction.operationType == 'sell'
-                            ? Colors.green[100]
-                            : null;
-
-                        return DataRow(
-                          color: MaterialStateProperty.resolveWith((states) => rowColor),
-                          cells: [
-                            DataCell(Text(transaction.date)),
-                            DataCell(Text(transaction.currency)),
-                            DataCell(Text(transaction.operationType)),
-                            DataCell(Text(transaction.amount.toString())),
-                            DataCell(Text(transaction.rate.toString())),
-                            DataCell(Text(transaction.total.toString())),
-                            DataCell(Row(
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  onPressed: () => _editTransaction(transaction),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  onPressed: () => _deleteTransaction(transaction.id),
-                                ),
-                              ],
-                            )),
-                          ],
-                        );
-                      }).toList(),
-                    ),
+                  final allCurrencies = [
+                    'All',
+                    ...snapshot.data!.map((currency) => currency.code)
+                  ];
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Первый Dropdown
+                      SizedBox(
+                        width: 100, // Фиксированная ширина для Dropdown
+                        child: DropdownButtonFormField<String>(
+                          decoration: const InputDecoration(
+                            labelText: 'Currency', // Текст заголовка
+                          ),
+                          value: selectedCurrency,
+                          isExpanded: true,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedCurrency = value;
+                            });
+                          },
+                          items: allCurrencies
+                              .map((currency) => DropdownMenuItem(
+                                    value: currency,
+                                    child: Text(currency),
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      // Второй Dropdown
+                      SizedBox(
+                        width: 100, // Фиксированная ширина для Dropdown
+                        child: DropdownButtonFormField<String>(
+                          decoration: const InputDecoration(
+                            labelText: 'Type', // Текст заголовка
+                          ),
+                          value: selectedOperationType,
+                          isExpanded: true,
+                          onChanged: (value) {
+                            setState(() {
+                              selectedOperationType = value;
+                            });
+                          },
+                          items: ['All', 'buy', 'sell']
+                              .map((type) => DropdownMenuItem(
+                                    value: type,
+                                    child: Text(type),
+                                  ))
+                              .toList(),
+                        ),
+                      ),
+                    ],
                   );
                 }
               },
             ),
-          ),
-        ],
+            const SizedBox(height: 16), // Добавим вертикальный отступ
+            Expanded(
+              child: FutureBuilder<List<Transaction>>(
+                future: transactions,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text('Ошибка: ${snapshot.error}'));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Center(child: Text('Нет данных'));
+                  } else {
+                    final filteredTransactions =
+                        _filterTransactions(snapshot.data!);
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        headingRowColor: MaterialStateProperty.resolveWith(
+                            (states) => Colors.grey[200]),
+                        columnSpacing: 20.0,
+                        columns: const [
+                          DataColumn(
+                              label: Text('Дата',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Валюта',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Тип',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Кол-во',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Курс',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Итог',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                          DataColumn(
+                              label: Text('Действия',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold))),
+                        ],
+                        rows: filteredTransactions.map((transaction) {
+                          final rowColor = transaction.operationType == 'buy'
+                              ? Colors.red[100]
+                              : transaction.operationType == 'sell'
+                                  ? Colors.green[100]
+                                  : null;
+
+                          return DataRow(
+                            color: MaterialStateProperty.resolveWith(
+                                (states) => rowColor),
+                            cells: [
+                              DataCell(Text(transaction.date)),
+                              DataCell(Text(transaction.currency)),
+                              DataCell(Text(transaction.operationType)),
+                              DataCell(Text(transaction.amount.toString())),
+                              DataCell(Text(transaction.rate.toString())),
+                              DataCell(Text(transaction.total.toString())),
+                              DataCell(Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.edit),
+                                    onPressed: () =>
+                                        _editTransaction(transaction),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete),
+                                    onPressed: () =>
+                                        _deleteTransaction(transaction.id),
+                                  ),
+                                ],
+                              )),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

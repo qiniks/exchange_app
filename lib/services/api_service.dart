@@ -143,7 +143,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> fetchCashDeskData() async {
     try {
-      final response = await _dio.get('/cash-register');
+      final response = await _dio.get('cash-register/');
       if (response.statusCode == 200) {
         return response.data;
       } else {
@@ -151,6 +151,30 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Ошибка: $e');
+    }
+  }
+
+  Future<void> clearDatabase() async {
+    try {
+      await _dio.post('clear-database/');
+    } catch (e) {
+      throw Exception('Ошибка при очистке базы данных: $e');
+    }
+  }
+
+  Future<void> deleteCurrency(int currencyId) async {
+    try {
+      await _dio.delete('currencies/delete/$currencyId/');
+    } catch (e) {
+      throw Exception('Ошибка при очистке базы данных: $e');
+    }
+  }
+
+  Future<void> deleteUser(int userId) async {
+    try {
+      await _dio.delete('users/delete/$userId/');
+    } catch (e) {
+      throw Exception('Ошибка при очистке базы данных: $e');
     }
   }
 }
